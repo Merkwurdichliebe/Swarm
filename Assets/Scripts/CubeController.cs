@@ -22,7 +22,7 @@ public class CubeController : MonoBehaviour {
 
 	void Awake() {
 		attractor = GameObject.Find ("Attractor");
-		settings = (MainController)FindObjectOfType(typeof(MainController));
+		settings = GameObject.Find ("MainController").GetComponent<MainController>();
 	}
 		
 	void Start () {

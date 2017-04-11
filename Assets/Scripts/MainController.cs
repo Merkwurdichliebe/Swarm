@@ -18,13 +18,45 @@ public class MainController : MonoBehaviour {
 	private GameObject attractor;
 	private GameObject cube;
 
+	private List<GameObject> cubes;
+	private int requestedCubes;
+
 	void Awake() {
 		attractor = Instantiate (attractorPrefab, Vector3.zero, Quaternion.identity);
 		attractor.name = "Attractor";
-		for (int i=0; i < cubeCount; i++) {
-			Vector3 pos = Utilities.randomVectorInRange (10);
-			cube = Instantiate(cubePrefab, pos, Quaternion.identity);
-			cube.name = "Cube " + i;
+
+		cubes = new List<GameObject> ();
+		SpawnCubes (cubeCount);
+	}
+
+	public void SliderCubesCount(float newValue) {
+		requestedCubes = (int)newValue;
+		if (requestedCubes != cubes.Count) {
+			if (requestedCubes > cubes.Count) {
+				SpawnCubes (requestedCubes - cubeCount);
+			} else {
+				RemoveCubes (requestedCubes);
+			}
+		}
+	}
+
+	void Update() {
+
+	}
+
+	void SpawnCubes(int newCubes) {
+		int currentCount = cubes.Count;
+		for (int i=currentCount; i < currentCount + newCubes; i++) {
+			Vector3 pos = Utilities.randomVectorInRange (20);
+			cubes.Add(Instantiate(cubePrefab, pos, Quaternion.identity));
+			cubes[i].name = "Cube " + i;
+		}
+	}
+
+	void RemoveCubes (int requestedCubes) {
+		while (cubes.Count > requestedCubes) {
+			Destroy (cubes [cubes.Count - 1]);
+			cubes.RemoveAt (cubes.Count - 1);
 		}
 	}
 }

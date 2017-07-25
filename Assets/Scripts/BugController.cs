@@ -2,25 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CubeController : MonoBehaviour {
+public class BugController : MonoBehaviour {
 
 	private float timeToNextTurn;			// Time before next turn
 	private float timeAtTurn;				// Time at turn
-	private float speedMult;				// Object speed multiplier
-	private float distToAttractor;			// Object's distance to Attractor object
+	private float speedMult;				// Bug speed multiplier
+	private float distToAttractor;			// Bug distance to Attractor object
 	private float maxDist;					// Maximum distance from the Attractor
 
-	private Vector3 dir;					// Random new direction for object
+	private Vector3 dir;					// Random new direction for bug
 	private Vector3 dirVar;					// Random variation vector added to Attractor object
 
 	private GameObject attractor;
 	private AttractorController attractorController;
 	private MainController settings;
+	private BoxCollider boxCollider;
+	private Vector3 startSize;
 
 	void Awake() {
-		attractor = GameObject.Find ("Attractor");
-		attractorController = attractor.GetComponent<AttractorController>();
 		settings = GameObject.Find ("MainController").GetComponent<MainController>();
+		attractor = settings.attractor;
+		attractorController = attractor.GetComponent<AttractorController>();
+		boxCollider = GetComponent<BoxCollider> ();
+		startSize = boxCollider.size;
 	}
 		
 	void Start () {
@@ -51,5 +55,12 @@ public class CubeController : MonoBehaviour {
 		}
 		transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation (dir), Time.deltaTime * 10);
 		transform.Translate (Vector3.forward * speedMult * Time.deltaTime);
+		boxCollider.size = startSize * settings.colliderScale;
+	}
+
+	void OnTriggerEnter(Collider other) {
+		timeAtTurn = Time.time;
+		timeToNextTurn = 0;
+		settings.AddEncounter (gameObject, other.gameObject);
 	}
 }

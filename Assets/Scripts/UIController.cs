@@ -7,16 +7,17 @@ public class UIController : MonoBehaviour {
 
 	private MainController settings;
 	public Text fpsText;
+	public Text encounterText;
+	public Text encounterWithLightText;
 	public float deltaTime;
 
 	void Awake() {
 		settings = GameObject.Find ("MainController").GetComponent<MainController>();
 	}
 
-	void Update() { // TODO
-		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
-		float fps = 1.0f / deltaTime;
-		fpsText.text = Mathf.Ceil (fps).ToString ();
+	void Update() {
+		DisplayFPS ();
+		DisplayEncounters ();
 	}
 
 	public void SliderMinMaxInterval(float newValue) {
@@ -32,5 +33,20 @@ public class UIController : MonoBehaviour {
 	public void SliderMaxDistToAttractor(float newValue) {
 		settings.maxDistToAttractor = (1 - newValue) * (1 - newValue) * 100;
 		settings.attractorVolume = ((1 - newValue) * 20);
+	}
+
+	public void SliderColliderScale(float newValue) {
+		settings.colliderScale = newValue;
+	}
+
+	private void DisplayFPS() {
+		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+		float fps = 1.0f / deltaTime;
+		fpsText.text = Mathf.Ceil (fps).ToString ();
+	}
+
+	private void DisplayEncounters() {
+		encounterText.text = settings.encounterCount.ToString ();
+		encounterWithLightText.text = settings.encounterWithLightCount.ToString ();
 	}
 }

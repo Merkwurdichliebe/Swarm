@@ -7,7 +7,7 @@ public class AttractorController : MonoBehaviour {
 	public bool isOn = true;
 
 	private Renderer rend;
-	public Light light;
+	public Light theLight;
 	private bool switchingStates = false;
 
 	Color offColor = new Color (0.3f, 0.3f, 0.3f, 3f);
@@ -20,8 +20,8 @@ public class AttractorController : MonoBehaviour {
 	
 	void Update () {
 		Vector3 pos = transform.position;
-		pos.x += 30 * Input.GetAxis("Horizontal") * Time.deltaTime;
-		pos.z += 30 * Input.GetAxis("Vertical") * Time.deltaTime;
+		pos.x += 50 * Input.GetAxis("Horizontal") * Time.deltaTime;
+		pos.z += 50 * Input.GetAxis("Vertical") * Time.deltaTime;
 		transform.position = pos;
 
 		if (Input.GetKeyDown(KeyCode.Space)) {
@@ -38,7 +38,7 @@ public class AttractorController : MonoBehaviour {
 			while (step < 1) {
 				Color c = Color.Lerp (currentColor, destinationColor, step);
 				rend.material.color = c;
-				light.intensity = isOn ? 1 - step : step;
+				theLight.intensity = isOn ? 1 - step : step;
 				step += rate * Time.deltaTime;
 				switchingStates = true;
 				yield return null;
@@ -47,16 +47,4 @@ public class AttractorController : MonoBehaviour {
 			switchingStates = false;
 		}
 	}
-	/*
-	IEnumerator LightSwitch() {
-		for (float f = 1f; f >= 0; f -= 0.1f) {
-			Color c = rend.material.color;
-			c.r = f; c.g = f; c.b = f;
-			rend.material.color = c;
-			yield return null;
-		}
-			isOn = !isOn;
-		print ("Ended");
-	}
-	*/
 }

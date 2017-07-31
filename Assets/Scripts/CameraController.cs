@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-	public GameObject attractor;
-
+	private GameObject attractor;
 	private Vector3 cameraPos;
 
 	void Start() {

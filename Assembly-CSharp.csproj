@@ -55,7 +55,7 @@
      <Compile Include="Assets\Scripts\AttractorController.cs" />
      <Compile Include="Assets\Scripts\BugController.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
-     <Compile Include="Assets\Scripts\MainController.cs" />
+     <Compile Include="Assets\Scripts\Manager.cs" />
      <Compile Include="Assets\Scripts\UIController.cs" />
      <Compile Include="Assets\Scripts\Utilities.cs" />
  <Reference Include="UnityEngine.UI">

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Utilities : MonoBehaviour {
+public static class Utilities {
 
 	// Returns a random Vector3
 	public static Vector3 randomVectorInRange(float range) {

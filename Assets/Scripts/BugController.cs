@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class BugController : MonoBehaviour {
 
+	public static int bugCount = 0;
+	public static int countActive = 0;
+	public static int countEncounters = 0;
+	public static int countEncountersWithLight = 0;
+
+	// From Main
+
 	private float timeToNextTurn;			// Time before next turn
 	private float timeAtTurn;				// Time at turn
 	private float speedMult;				// Bug speed multiplier
@@ -15,19 +22,53 @@ public class BugController : MonoBehaviour {
 
 	private GameObject attractor;
 	private AttractorController attractorController;
-	private MainController settings;
+	private Manager settings;
 	private BoxCollider boxCollider;
 	private Vector3 startSize;
 
+	public enum Gender {Male, Female};
+	public Gender gender;
+
+	private Color colorMale = new Color(0.5f, 0.5f, 1.0f, 1.0f);
+	private Color colorFemale = new Color(1.0f, 0.5f, 0.5f, 1.0f);
+
+	private float birthTime;
+	private float lifespan;
+
 	void Awake() {
-		settings = GameObject.Find ("MainController").GetComponent<MainController>();
-		attractor = settings.attractor;
-		attractorController = attractor.GetComponent<AttractorController>();
+		settings = GameObject.Find ("Manager").GetComponent<Manager>();
 		boxCollider = GetComponent<BoxCollider> ();
 		startSize = boxCollider.size;
+		gameObject.tag = "Bug";
+		birthTime = Time.time;
+		lifespan = settings.averageLifespan + Random.Range (-3f, 4f);
+		bugCount++;
 	}
 		
 	void Start () {
+		// Needs to be in Start because Prefab is instantiated in Awake
+		// Can this be done more nicely?
+		// TODO
+		attractorController = attractor.GetComponent<AttractorController>();
+
+		if (gender == Gender.Male) {
+			gameObject.GetComponent<Renderer> ().material.color = colorMale;
+		}
+		else {
+			gameObject.GetComponent<Renderer> ().material.color = colorFemale;
+		}
+	}
+
+	void OnEnable() {
+		countActive++;
+	}
+
+	void OnDisable() {
+		countActive--;
+	}
+
+	void OnDestroy() {
+		bugCount--;
 	}
 
 	void Update () {
@@ -56,11 +97,26 @@ public class BugController : MonoBehaviour {
 		transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation (dir), Time.deltaTime * 10);
 		transform.Translate (Vector3.forward * speedMult * Time.deltaTime);
 		boxCollider.size = startSize * settings.colliderScale;
+
+		// Check lifespan
+
+		if (Time.time - birthTime > lifespan) {
+			settings.Death (gameObject);
+		}
+	}
+
+	public void AddAttractor(GameObject att) {
+		attractor = att;
 	}
 
 	void OnTriggerEnter(Collider other) {
 		timeAtTurn = Time.time;
 		timeToNextTurn = 0;
-		settings.AddEncounter (gameObject, other.gameObject);
+		settings.Encounter (gameObject, other.gameObject);
+		if (other.gameObject.tag == "Bug") {
+			if (other.gameObject.GetComponent<BugController>().gender != gender) {
+				gameObject.GetComponent<Renderer> ().material.color = Color.white;
+			}
+		}
 	}
 }

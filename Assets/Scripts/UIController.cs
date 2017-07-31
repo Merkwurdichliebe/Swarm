@@ -5,14 +5,14 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
 
-	private MainController settings;
+	private Manager settings;
 	public Text fpsText;
 	public Text encounterText;
 	public Text encounterWithLightText;
 	public float deltaTime;
 
 	void Awake() {
-		settings = GameObject.Find ("MainController").GetComponent<MainController>();
+		settings = GameObject.Find ("Manager").GetComponent<Manager>();
 	}
 
 	void Update() {
@@ -46,7 +46,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	private void DisplayEncounters() {
-		encounterText.text = settings.encounterCount.ToString ();
-		encounterWithLightText.text = settings.encounterWithLightCount.ToString ();
+		encounterText.text = BugController.countEncounters.ToString ();
+		encounterWithLightText.text = BugController.countEncountersWithLight.ToString ();
 	}
 }

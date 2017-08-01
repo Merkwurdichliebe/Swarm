@@ -21,8 +21,8 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void SliderMinMaxInterval(float newValue) {
-		settings.minInterval = Utilities.map01((1 - newValue), 0f, 2f);
-		settings.maxInterval = Utilities.map01((1 - newValue), 0f, 10f);
+		settings.turnMin = Utilities.map01((1 - newValue), 0f, 2f);
+		settings.turnMax = Utilities.map01((1 - newValue), 0f, 10f);
 	}
 
 	public void SliderMinMaxSpeed(float newValue) {
@@ -31,7 +31,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void SliderMaxDistToAttractor(float newValue) {
-		settings.maxDistToAttractor = (1 - newValue) * (1 - newValue) * 100;
+		settings.distanceMax = (1 - newValue) * (1 - newValue) * 100;
 		settings.attractorVolume = ((1 - newValue) * 20);
 	}
 

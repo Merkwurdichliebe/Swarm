@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public class UIController : MonoBehaviour {
 
 	private Manager settings;
-	public Text fpsText;
-	public Text encounterText;
-	public Text encounterWithLightText;
+	public Text FPSText;
+	public Text EncounterText;
+	public Text EncounterWithLightText;
 	public float deltaTime;
 
 	void Awake() {
@@ -42,11 +42,11 @@ public class UIController : MonoBehaviour {
 	private void DisplayFPS() {
 		deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
 		float fps = 1.0f / deltaTime;
-		fpsText.text = Mathf.Ceil (fps).ToString ();
+		FPSText.text = Mathf.Ceil (fps).ToString ();
 	}
 
 	private void DisplayEncounters() {
-		encounterText.text = BugController.countEncounters.ToString ();
-		encounterWithLightText.text = BugController.countEncountersWithLight.ToString ();
+		EncounterText.text = BugController.CountEncounters.ToString ();
+		EncounterWithLightText.text = BugController.CountEncountersWithLight.ToString ();
 	}
 }

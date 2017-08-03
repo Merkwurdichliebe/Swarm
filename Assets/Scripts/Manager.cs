@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public class Manager : MonoBehaviour {
 
 	[Header("References")]
-	public GameObject bugPrefab;
-	public GameObject attractorPrefab;
+	public GameObject BugPrefab;
+	public GameObject AttractorPrefab;
 
 	[Header("Variables")]
 	public int maxBugs = 100;
 	public int startBugs = 50;
 	public float speedMin = 1f;				// Minimum bug speed
-	public float speedMax = 50f;			// Maximum bug speed
+	public float speedMax = 50f;				// Maximum bug speed
 	public float turnMin = 0f;				// Shortest time before turn
 	public float turnMax = 5f;				// Longest time before turn
 	public float distanceMax = 10;			// Further away objects start approaching the Attractor
@@ -29,10 +29,12 @@ public class Manager : MonoBehaviour {
 	private List<GameObject> bugsPool;
 	private int requestedBugs;
 
-	void Awake() {
+	// TODO Add Exceptions when no prefabs are assigned in Editor
 
+	void Awake() 
+	{
 		// Create the Attractor
-		GameObject attractor = Instantiate (attractorPrefab, Vector3.zero, Quaternion.identity);
+		GameObject attractor = Instantiate (AttractorPrefab, Vector3.zero, Quaternion.identity);
 		attractor.name = "Attractor";
 		attractor.tag = "Attractor";
 
@@ -42,11 +44,12 @@ public class Manager : MonoBehaviour {
 
 		// Create the Bugs object pool
 		bugsPool = new List<GameObject> ();
-		for (int i = 0; i < maxBugs; i++) {
+		for (int i = 0; i < maxBugs; i++)
+		{
 			Vector3 pos = Utilities.randomVectorInRange (50);
-			bugsPool.Add(Instantiate(bugPrefab, pos, Quaternion.identity));
+			bugsPool.Add(Instantiate(BugPrefab, pos, Quaternion.identity));
 			BugController bc = bugsPool [i].GetComponent<BugController> ();
-			bc.gender = (BugController.Gender)Random.Range(0, 2);
+			bc.gender = (BugGender)Random.Range(0, 2);
 			bugsPool [i].name = "Bug " + i + " (" + bc.gender + ")";
 			bugsPool [i].transform.parent = bugsRoot.transform;
 			bc.AddAttractor(attractor);
@@ -63,7 +66,8 @@ public class Manager : MonoBehaviour {
 		Debug.Log ("Requested bugs = " + requestedBugs);
 	}
 
-	void Start() {
+	void Start() 
+	{
 
 		// Spawn initial bugs from the pool
 		AddRemoveBugs(requestedBugs);
@@ -72,19 +76,22 @@ public class Manager : MonoBehaviour {
 
 
 	// Get the requested bug count from the UI Slider
-	public void SliderBugsCount(float newValue) {
+	public void SliderBugsCount(float newValue) 
+	{
 		requestedBugs = (int)newValue;
 	}
 
 
-	void Update() {
+	void Update() 
+	{
 //		if (requestedBugs != BugController.countActive) {
 //			Debug.Log ("Requested (" + requestedBugs + ") differs from active (" + BugController.countActive + "), adjusting...");
 //			AddRemoveBugs (requestedBugs - BugController.countActive);
 //		}
 
 		// End if all bugs are dead
-		if (BugController.countActive == 0) {
+		if (BugController.CountActive == 0) 
+		{
 			Debug.Log ("All bugs have died. Terminating.");
 			Debug.Break ();
 		}
@@ -92,31 +99,40 @@ public class Manager : MonoBehaviour {
 
 
 	// Get a positive or negative number and adjust the number of active bugs in the pool
-	void AddRemoveBugs(int quantity) {
-		int targetNumberOfBugs = BugController.countActive + quantity;
-		while(BugController.countActive != targetNumberOfBugs) {
-			if (BugController.countActive < targetNumberOfBugs) {
-				bugsPool [BugController.countActive].SetActive (true);
+	void AddRemoveBugs(int quantity) 
+	{
+		int targetNumberOfBugs = BugController.CountActive + quantity;
+		while(BugController.CountActive != targetNumberOfBugs) 
+		{
+			if (BugController.CountActive < targetNumberOfBugs) 
+			{
+				bugsPool [BugController.CountActive].SetActive (true);
 			}
-			else {
-				bugsPool [BugController.countActive].SetActive (false);
+			else 
+			{
+				bugsPool [BugController.CountActive].SetActive (false);
 			}
-			Debug.Log ("Added/Removed, Target is " + targetNumberOfBugs + ", Now active is " + BugController.countActive);
+			Debug.Log ("Added/Removed, Target is " + targetNumberOfBugs + ", Now active is " + BugController.CountActive);
 		}
-		Debug.Log ("AddRemove finished. Active bugs : " + BugController.countActive);
+		Debug.Log ("AddRemove finished. Active bugs : " + BugController.CountActive);
 	}
 
-	public void Encounter(GameObject obj1, GameObject obj2) {
-		if (obj2.name == "Sphere") {
-			BugController.countEncountersWithLight++;
-		} else {
-			BugController.countEncounters++;
+	public void Encounter(GameObject obj1, GameObject obj2) 
+	{
+		if (obj2.name == "Sphere")
+		{
+			BugController.CountEncountersWithLight++;
+		} 
+		else 
+		{
+			BugController.CountEncounters++;
 		}
 	}
 
-	public void Death(GameObject obj) {
+	public void Death(GameObject obj) 
+	{
 		obj.SetActive (false);
-		Debug.Log (obj.name + " has died. Death count is now " + BugController.countDeaths);
+		Debug.Log (obj.name + " has died. Death count is now " + BugController.CountDeaths);
 		obj.name = obj.name + " (Dead) ";
 	}
 }

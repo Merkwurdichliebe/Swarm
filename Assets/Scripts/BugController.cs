@@ -57,25 +57,22 @@ public class BugController : MonoBehaviour {
 		
 	void Start () 
 	{
-		if (gender == BugGender.Male) 
-		{
-			gameObject.GetComponent<Renderer> ().material.color = colorMale;
-		}
-		else 
-		{
-			gameObject.GetComponent<Renderer> ().material.color = colorFemale;
-		}
 	}
 
 	void OnEnable() 
 	{
+		gameObject.GetComponent<Renderer> ().material.color = (gender == BugGender.Male ? colorMale : colorFemale);
+		status = Status.Adult;
 		birthTime = Time.time;
+		transform.position = Utilities.randomVectorInRange (50);
 		CountActive++;
+		Debug.Log (string.Format ("FROM BUG : {0} has been enabled, Active count now {1}", this.name, CountActive));
 	}
 
 	void OnDisable() 
 	{
 		CountActive--;
+		Debug.Log (string.Format ("FROM BUG : {0} has been disabled, Active count now {1}", this.name, CountActive));
 	}
 
 	void OnDestroy() 
@@ -88,11 +85,12 @@ public class BugController : MonoBehaviour {
 		switch (status)
 		{
 			case Status.Adult:
-				if (Time.time - birthTime > lifespan) 
+				if (Time.time - birthTime > lifespan)
 				{
 					status = Status.Dying;
 					deathTime = Time.time;
 				}
+				Rotate ();
 				Move ();
 				break;
 			case Status.Dying:
@@ -103,21 +101,21 @@ public class BugController : MonoBehaviour {
 				}
 				else
 				{
-					DoDeathAnimation ();
+					PrepareToDie ();
+					Move ();
 				}
 				break;	
 		}
 	}
 
-	private void DoDeathAnimation()
+	private void PrepareToDie()
 	{
 		// Slow down the bug to 20 percent of speed over time and fade it out
 		speedMult = Mathf.Lerp (speedMult, 0, 3 * Time.deltaTime);
 		material.color = new Color(material.color.r, material.color.g, material.color.b, Mathf.Lerp(material.color.a, 0, 2f * Time.deltaTime));
-		Move ();		
 	}
-		
-	private void Move()
+
+	private void Rotate()
 	{
 		// Check if object should turn; don't turn if Dying
 		if (Time.time >= (timeAtTurn + timeToNextTurn) && status != Status.Dying) 
@@ -144,7 +142,10 @@ public class BugController : MonoBehaviour {
 				dir = Utilities.randomVectorInRange(1);
 			}
 		}
-
+	}
+		
+	private void Move()
+	{
 		// Set new rotation and move the bug
 		transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation (dir), Time.deltaTime * 10);
 		transform.Translate (Vector3.forward * speedMult * Time.deltaTime);

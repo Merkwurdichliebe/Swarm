@@ -46,14 +46,16 @@ public class Manager : MonoBehaviour {
 		bugsPool = new List<GameObject> ();
 		for (int i = 0; i < maxBugs; i++)
 		{
-			Vector3 pos = Utilities.randomVectorInRange (50);
-			bugsPool.Add(Instantiate(BugPrefab, pos, Quaternion.identity));
-			BugController bc = bugsPool [i].GetComponent<BugController> ();
+			// TODO make OBJ & BC reference the same thing, it's confusing here
+			GameObject obj = Instantiate (BugPrefab, Vector3.zero, Quaternion.identity);
+			BugController bc = obj.GetComponent<BugController> ();
 			bc.gender = (BugGender)Random.Range(0, 2);
-			bugsPool [i].name = "Bug " + i + " (" + bc.gender + ")";
-			bugsPool [i].transform.parent = bugsRoot.transform;
+			// obj.name = "Bug " + i + " (" + bc.gender + ")";
+			obj.name = "Bug " + i;
+			obj.transform.parent = bugsRoot.transform;
 			bc.AddAttractor(attractor);
-			bugsPool [i].SetActive (false);
+			obj.SetActive (false);
+			bugsPool.Add(obj);
 		}
 
 		// Setup the population slider min, max and default
@@ -70,7 +72,10 @@ public class Manager : MonoBehaviour {
 	{
 
 		// Spawn initial bugs from the pool
-		AddRemoveBugs(requestedBugs);
+		for (int i = 0; i < startBugs; i++)
+		{
+			GetNewBugFromPool();	
+		}
 		Debug.Log ("-- END MAIN START --");
 	}
 
@@ -95,26 +100,25 @@ public class Manager : MonoBehaviour {
 			Debug.Log ("All bugs have died. Terminating.");
 			Debug.Break ();
 		}
-	}
 
-
-	// Get a positive or negative number and adjust the number of active bugs in the pool
-	void AddRemoveBugs(int quantity) 
-	{
-		int targetNumberOfBugs = BugController.CountActive + quantity;
-		while(BugController.CountActive != targetNumberOfBugs) 
-		{
-			if (BugController.CountActive < targetNumberOfBugs) 
-			{
-				bugsPool [BugController.CountActive].SetActive (true);
-			}
-			else 
-			{
-				bugsPool [BugController.CountActive].SetActive (false);
-			}
-			Debug.Log ("Added/Removed, Target is " + targetNumberOfBugs + ", Now active is " + BugController.CountActive);
+		if (Input.GetKeyDown(KeyCode.B)) {
+			GetNewBugFromPool ();
 		}
-		Debug.Log ("AddRemove finished. Active bugs : " + BugController.CountActive);
+	}
+		
+	// Get a positive or negative number and adjust the number of active bugs in the pool
+	private void GetNewBugFromPool() 
+	{
+		for (int i = 0; i < bugsPool.Count; i++)
+		{
+			if (!bugsPool[i].activeSelf)
+			{
+				bugsPool [i].SetActive (true);
+				Debug.Log (string.Format("FROM MANAGER: Activated bug {0}", i));
+				return;
+			}
+		}
+		Debug.Log ("Pool is at maximum");
 	}
 
 	public void Encounter(GameObject obj1, GameObject obj2) 
@@ -133,6 +137,6 @@ public class Manager : MonoBehaviour {
 	{
 		obj.SetActive (false);
 		Debug.Log (obj.name + " has died. Death count is now " + BugController.CountDeaths);
-		obj.name = obj.name + " (Dead) ";
+		// obj.name = obj.name + " (Dead) ";
 	}
 }

@@ -35,7 +35,21 @@ public class BugController : MonoBehaviour {
 	private Manager manager;
 	private BoxCollider boxCollider;
 
-	public BugGender gender;
+	// Gender is a Property so that setting it also changes the bug's color
+	private BugGender gender;
+	public BugGender Gender
+	{
+		get
+		{
+			return gender;
+		}
+		set
+		{
+			gender = value;
+			material.color = (gender == BugGender.Male ? colorMale : colorFemale);
+		}
+	}
+
 	public Status status;
 
 	// Renderer
@@ -46,7 +60,7 @@ public class BugController : MonoBehaviour {
 	void Awake() 
 	{
 		manager = GameObject.Find ("Manager").GetComponent<Manager>();
-		boxCollider = GetComponent<BoxCollider> ();
+		boxCollider = gameObject.GetComponent<BoxCollider> ();
 		material = gameObject.GetComponent<Renderer> ().material;
 		colliderStartSize = boxCollider.size;
 		gameObject.tag = "Bug";
@@ -61,7 +75,6 @@ public class BugController : MonoBehaviour {
 
 	void OnEnable() 
 	{
-		gameObject.GetComponent<Renderer> ().material.color = (gender == BugGender.Male ? colorMale : colorFemale);
 		status = Status.Adult;
 		birthTime = Time.time;
 		transform.position = Utilities.randomVectorInRange (50);
@@ -170,7 +183,7 @@ public class BugController : MonoBehaviour {
 		{
 			if (other.gameObject.GetComponent<BugController>().gender != gender)
 			{
-				material.color = Color.white;
+				material.color = Color.yellow;
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 public class Manager : MonoBehaviour {
@@ -33,6 +34,9 @@ public class Manager : MonoBehaviour {
 
 	void Awake() 
 	{
+		Assert.IsNotNull (BugPrefab, "[Manager Awake] BugPrefab is NULL");
+		Assert.IsNotNull (AttractorPrefab, "[Manager Awake] AttractorPrefab is NULL");
+
 		// Create the Attractor
 		GameObject attractor = Instantiate (AttractorPrefab, Vector3.zero, Quaternion.identity);
 		attractor.name = "Attractor";
@@ -49,7 +53,6 @@ public class Manager : MonoBehaviour {
 			// TODO make OBJ & BC reference the same thing, it's confusing here
 			GameObject obj = Instantiate (BugPrefab, Vector3.zero, Quaternion.identity);
 			BugController bc = obj.GetComponent<BugController> ();
-			bc.gender = (BugGender)Random.Range(0, 2);
 			// obj.name = "Bug " + i + " (" + bc.gender + ")";
 			obj.name = "Bug " + i;
 			obj.transform.parent = bugsRoot.transform;
@@ -70,11 +73,10 @@ public class Manager : MonoBehaviour {
 
 	void Start() 
 	{
-
-		// Spawn initial bugs from the pool
+		// Spawn initial bugs from the pool with random Genders
 		for (int i = 0; i < startBugs; i++)
 		{
-			GetNewBugFromPool();	
+			GetNewBugFromPool((BugGender)Random.Range(0, 2));	
 		}
 		Debug.Log ("-- END MAIN START --");
 	}
@@ -89,11 +91,6 @@ public class Manager : MonoBehaviour {
 
 	void Update() 
 	{
-//		if (requestedBugs != BugController.countActive) {
-//			Debug.Log ("Requested (" + requestedBugs + ") differs from active (" + BugController.countActive + "), adjusting...");
-//			AddRemoveBugs (requestedBugs - BugController.countActive);
-//		}
-
 		// End if all bugs are dead
 		if (BugController.CountActive == 0) 
 		{
@@ -101,19 +98,24 @@ public class Manager : MonoBehaviour {
 			Debug.Break ();
 		}
 
-		if (Input.GetKeyDown(KeyCode.B)) {
-			GetNewBugFromPool ();
+		if (Input.GetKeyDown(KeyCode.F)) {
+			GetNewBugFromPool (BugGender.Female);
+		}
+
+		if (Input.GetKeyDown(KeyCode.M)) {
+			GetNewBugFromPool (BugGender.Male);
 		}
 	}
 		
 	// Get a positive or negative number and adjust the number of active bugs in the pool
-	private void GetNewBugFromPool() 
+	private void GetNewBugFromPool(BugGender g) 
 	{
 		for (int i = 0; i < bugsPool.Count; i++)
 		{
 			if (!bugsPool[i].activeSelf)
 			{
 				bugsPool [i].SetActive (true);
+				bugsPool [i].GetComponent<BugController>().Gender = g;
 				Debug.Log (string.Format("FROM MANAGER: Activated bug {0}", i));
 				return;
 			}

@@ -11,14 +11,24 @@ using UnityEngine;
 public enum BugGender {Male, Female};
 public enum Status {Born, Adult, Dying};
 
-public class BugController : MonoBehaviour {
+public class Bug : MonoBehaviour {
 
 	// Static counting variables
 	public static int BugCount = 0;
-	public static int CountActive = 0;
 	public static int CountEncounters = 0;
 	public static int CountEncountersWithLight = 0;
 	public static int CountDeaths = 0;
+
+	// A 2-element array for counting male and female bugs
+	// With a property for returning the total count
+	public static int[] count = new int[2];
+	public static int CountActive
+	{
+		get
+		{
+			return count [(int)BugGender.Male] + count[(int)BugGender.Female];
+		}
+	}
 
 	// Bug parameters
 	private float timeToNextTurn;				// Time before next turn
@@ -68,24 +78,18 @@ public class BugController : MonoBehaviour {
 		status = Status.Adult;
 		BugCount++;
 	}
-		
-	void Start () 
-	{
-	}
 
-	void OnEnable() 
+	public void Initialize(BugGender g)
 	{
+		gameObject.SetActive (true);
+		Gender = g;
+		Debug.Log (Gender);
 		status = Status.Adult;
 		birthTime = Time.time;
 		transform.position = Utilities.randomVectorInRange (50);
-		CountActive++;
-		Debug.Log (string.Format ("FROM BUG : {0} has been enabled, Active count now {1}", this.name, CountActive));
-	}
-
-	void OnDisable() 
-	{
-		CountActive--;
-		Debug.Log (string.Format ("FROM BUG : {0} has been disabled, Active count now {1}", this.name, CountActive));
+		count [(int)Gender]++;
+		StartCoroutine(CheckIfDead());
+		Debug.Log (string.Format ("FROM BUG : {0} has been enabled, Active count now {1}", this.name, CountActive));		
 	}
 
 	void OnDestroy() 
@@ -98,11 +102,6 @@ public class BugController : MonoBehaviour {
 		switch (status)
 		{
 			case Status.Adult:
-				if (Time.time - birthTime > lifespan)
-				{
-					status = Status.Dying;
-					deathTime = Time.time;
-				}
 				Rotate ();
 				Move ();
 				break;
@@ -119,6 +118,18 @@ public class BugController : MonoBehaviour {
 				}
 				break;	
 		}
+	}
+		
+	// Coroutine to perform lifespan check every half a second
+	// We don't need to check this every frame
+	IEnumerator CheckIfDead()
+	{
+		while (Time.time - birthTime < lifespan)
+		{
+			yield return new WaitForSeconds (0.5f);	
+		}
+		status = Status.Dying;
+		deathTime = Time.time;
 	}
 
 	private void PrepareToDie()
@@ -181,7 +192,7 @@ public class BugController : MonoBehaviour {
 		manager.Encounter (gameObject, other.gameObject);
 		if (other.gameObject.tag == "Bug" && status == Status.Adult)
 		{
-			if (other.gameObject.GetComponent<BugController>().gender != gender)
+			if (other.gameObject.GetComponent<Bug>().gender != gender)
 			{
 				material.color = Color.yellow;
 			}
@@ -190,7 +201,10 @@ public class BugController : MonoBehaviour {
 
 	void Die()
 	{
+		gameObject.SetActive (false);
+		count [(int)gender]--;
 		CountDeaths++;
 		manager.Death (gameObject);
+		Debug.Log (string.Format ("FROM BUG : {0} has been disabled, Active count now {1}", this.name, CountActive));
 	}
 }

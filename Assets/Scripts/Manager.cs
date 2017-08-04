@@ -52,7 +52,7 @@ public class Manager : MonoBehaviour {
 		{
 			// TODO make OBJ & BC reference the same thing, it's confusing here
 			GameObject obj = Instantiate (BugPrefab, Vector3.zero, Quaternion.identity);
-			BugController bc = obj.GetComponent<BugController> ();
+			Bug bc = obj.GetComponent<Bug> ();
 			// obj.name = "Bug " + i + " (" + bc.gender + ")";
 			obj.name = "Bug " + i;
 			obj.transform.parent = bugsRoot.transform;
@@ -91,13 +91,6 @@ public class Manager : MonoBehaviour {
 
 	void Update() 
 	{
-		// End if all bugs are dead
-		if (BugController.CountActive == 0) 
-		{
-			Debug.Log ("All bugs have died. Terminating.");
-			Debug.Break ();
-		}
-
 		if (Input.GetKeyDown(KeyCode.F)) {
 			GetNewBugFromPool (BugGender.Female);
 		}
@@ -114,9 +107,7 @@ public class Manager : MonoBehaviour {
 		{
 			if (!bugsPool[i].activeSelf)
 			{
-				bugsPool [i].SetActive (true);
-				bugsPool [i].GetComponent<BugController>().Gender = g;
-				Debug.Log (string.Format("FROM MANAGER: Activated bug {0}", i));
+				bugsPool [i].GetComponent<Bug>().Initialize(g);
 				return;
 			}
 		}
@@ -127,18 +118,23 @@ public class Manager : MonoBehaviour {
 	{
 		if (obj2.name == "Sphere")
 		{
-			BugController.CountEncountersWithLight++;
+			Bug.CountEncountersWithLight++;
 		} 
 		else 
 		{
-			BugController.CountEncounters++;
+			Bug.CountEncounters++;
 		}
 	}
 
 	public void Death(GameObject obj) 
 	{
-		obj.SetActive (false);
-		Debug.Log (obj.name + " has died. Death count is now " + BugController.CountDeaths);
-		// obj.name = obj.name + " (Dead) ";
+		Debug.Log (obj.name + " has died. Death count is now " + Bug.CountDeaths);
+
+		// End if all bugs are dead
+		if (Bug.CountActive == 0) 
+		{
+			Debug.Log ("All bugs have died. Terminating.");
+			Debug.Break ();
+		}
 	}
 }

@@ -9,6 +9,8 @@ public class UIController : MonoBehaviour {
 	public Text FPSText;
 	public Text EncounterText;
 	public Text EncounterWithLightText;
+	public Text BlueText;
+	public Text RedText;
 	public float deltaTime;
 
 	void Awake() {
@@ -18,6 +20,8 @@ public class UIController : MonoBehaviour {
 	void Update() {
 		DisplayFPS ();
 		DisplayEncounters ();
+		BlueText.text = Bug.count [(int)BugGender.Male].ToString ();
+		RedText.text = Bug.count [(int)BugGender.Female].ToString ();
 	}
 
 	public void SliderMinMaxInterval(float newValue) {
@@ -46,7 +50,7 @@ public class UIController : MonoBehaviour {
 	}
 
 	private void DisplayEncounters() {
-		EncounterText.text = BugController.CountEncounters.ToString ();
-		EncounterWithLightText.text = BugController.CountEncountersWithLight.ToString ();
+		EncounterText.text = Bug.CountEncounters.ToString ();
+		EncounterWithLightText.text = Bug.CountEncountersWithLight.ToString ();
 	}
 }

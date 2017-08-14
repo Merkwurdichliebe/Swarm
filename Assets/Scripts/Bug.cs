@@ -13,6 +13,11 @@ public enum Status {Born, Adult, Dying};
 
 public class Bug : MonoBehaviour {
 
+	// Declare delegate and events for notification
+	public delegate void BugEventHandler(Bug sender);
+	public static event BugEventHandler BugDeath;
+	public static event BugEventHandler BugEncounter;
+
 	// Static counting variables
 	public static int BugCount = 0;
 	public static int CountEncounters = 0;
@@ -42,7 +47,8 @@ public class Bug : MonoBehaviour {
 
 	// Object references
 	private AttractorController attractor;
-	private Manager manager;
+//	private Manager manager;
+	private Setup setup;
 	private BoxCollider boxCollider;
 
 	// Gender is a Property so that setting it also changes the bug's color
@@ -60,6 +66,7 @@ public class Bug : MonoBehaviour {
 		}
 	}
 
+	// Bug status
 	public Status status;
 
 	// Renderer
@@ -67,18 +74,25 @@ public class Bug : MonoBehaviour {
 	private Color colorMale = new Color(0.5f, 0.5f, 1.0f, 1.0f);
 	private Color colorFemale = new Color(1.0f, 0.5f, 0.5f, 1.0f);
 
+	//Collisions
+	public Collider lastCollider;
+
 	void Awake() 
 	{
-		manager = GameObject.Find ("Manager").GetComponent<Manager>();
+//		manager = GameObject.Find ("Manager").GetComponent<Manager>();
 		boxCollider = gameObject.GetComponent<BoxCollider> ();
 		material = gameObject.GetComponent<Renderer> ().material;
 		colliderStartSize = boxCollider.size;
 		gameObject.tag = "Bug";
-		lifespan = Random.Range (manager.averageLifespan / 2f, manager.averageLifespan * 1.5f);
+		lifespan = Random.Range (Setup.averageLifespan / 2f, Setup.averageLifespan * 1.5f);
 		status = Status.Adult;
 		BugCount++;
 	}
 
+	/// <summary>
+	/// Initialize a new bug with the specified Gender.
+	/// </summary>
+	/// <param name="g">The bug's Gender.</param>
 	public void Initialize(BugGender g)
 	{
 		gameObject.SetActive (true);
@@ -99,25 +113,25 @@ public class Bug : MonoBehaviour {
 
 	void Update () 
 	{
-		switch (status)
-		{
-			case Status.Adult:
-				Rotate ();
-				Move ();
-				break;
-			case Status.Dying:
-				// Do the death animation for 3.0 seconds, then die
-				if (Time.time > deathTime + 3.0)
-				{
-					Die ();
-				}
-				else
-				{
-					PrepareToDie ();
+			switch (status)
+			{
+				case Status.Adult:
+					Rotate ();
 					Move ();
-				}
-				break;	
-		}
+					break;
+				case Status.Dying:
+					// Do the death animation for 3.0 seconds, then die
+					if (Time.time > deathTime + 3.0)
+					{
+						Die ();
+					}
+					else
+					{
+						PrepareToDie ();
+						Move ();
+					}
+					break;	
+			}
 	}
 		
 	// Coroutine to perform lifespan check every half a second
@@ -130,6 +144,7 @@ public class Bug : MonoBehaviour {
 		}
 		status = Status.Dying;
 		deathTime = Time.time;
+		// TODO Make this work: StartCoroutine (DoDeathAnimation ());
 	}
 
 	private void PrepareToDie()
@@ -139,22 +154,34 @@ public class Bug : MonoBehaviour {
 		material.color = new Color(material.color.r, material.color.g, material.color.b, Mathf.Lerp(material.color.a, 0, 2f * Time.deltaTime));
 	}
 
+	// TODO This doesn't work for now
+	IEnumerator DoDeathAnimation()
+	{
+		float step = 0;
+		while (step < 1) {
+			material.color = new Color(material.color.r, material.color.g, material.color.b, Mathf.Lerp(255, 0, step));
+			step += Time.deltaTime;
+		}
+		yield return null;
+		Die ();
+	}
+
 	private void Rotate()
 	{
 		// Check if object should turn; don't turn if Dying
 		if (Time.time >= (timeAtTurn + timeToNextTurn) && status != Status.Dying) 
 		{
-			timeToNextTurn = Random.Range (manager.turnMin, manager.turnMax);
-			speedMult = Random.Range (manager.speedMin, manager.speedMax);
+			timeToNextTurn = Random.Range (Setup.turnMin, Setup.turnMax);
+			speedMult = Random.Range (Setup.speedMin, Setup.speedMax);
 			timeAtTurn = Time.time;
 
 			if (attractor.isOn) 
 			{
 				// If the object is too far from the attractor, give it a chance to get closer to it
-				if ((transform.position - attractor.gameObject.transform.position).sqrMagnitude > (manager.distanceMax * manager.distanceMax) 
-					&& Random.Range (0, 100) < manager.attractorThreshold) 
+				if ((transform.position - attractor.gameObject.transform.position).sqrMagnitude > (Setup.distanceMax * Setup.distanceMax) 
+					&& Random.Range (0, 100) < Setup.attractorThreshold) 
 				{
-					dir = attractor.gameObject.transform.position - transform.position + Utilities.randomVectorInRange (manager.attractorVolume);
+					dir = attractor.gameObject.transform.position - transform.position + Utilities.randomVectorInRange (Setup.attractorVolume);
 				} 
 				else 
 				{
@@ -175,7 +202,7 @@ public class Bug : MonoBehaviour {
 		transform.Translate (Vector3.forward * speedMult * Time.deltaTime);
 
 		// TODO This should go into a method when paranoia slider is moved, not needed in every frame
-		boxCollider.size = colliderStartSize * manager.colliderScale;
+		boxCollider.size = colliderStartSize * Setup.colliderScale;
 	}
 
 	// Add an attractor that the bug will attract to
@@ -185,11 +212,35 @@ public class Bug : MonoBehaviour {
 		attractor = att.GetComponent<AttractorController>();
 	}
 
-	void OnTriggerEnter(Collider other)
+	void Die()
+	{
+		gameObject.SetActive (false);
+		count [(int)gender]--;
+		CountDeaths++;
+		if (BugDeath != null)
+		{
+			BugDeath (this);
+		}
+//		manager.Death (gameObject);
+		Debug.Log (string.Format ("FROM BUG : {0} has been disabled, Active count now {1}", this.name, CountActive));
+
+	}
+
+	/// <summary>
+	/// Handle collision with another object
+	/// </summary>
+	/// <param name="other">The object with which this object has collided.</param>
+
+	public void OnTriggerEnter(Collider other)
 	{
 		timeAtTurn = Time.time;
 		timeToNextTurn = 0;
-		manager.Encounter (gameObject, other.gameObject);
+		lastCollider = other;
+		if (BugEncounter != null)
+		{
+			BugEncounter (this);
+		}
+//		manager.Encounter (gameObject, other.gameObject);
 		if (other.gameObject.tag == "Bug" && status == Status.Adult)
 		{
 			if (other.gameObject.GetComponent<Bug>().gender != gender)
@@ -198,13 +249,5 @@ public class Bug : MonoBehaviour {
 			}
 		}
 	}
-
-	void Die()
-	{
-		gameObject.SetActive (false);
-		count [(int)gender]--;
-		CountDeaths++;
-		manager.Death (gameObject);
-		Debug.Log (string.Format ("FROM BUG : {0} has been disabled, Active count now {1}", this.name, CountActive));
-	}
+		
 }

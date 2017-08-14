@@ -10,19 +10,6 @@ public class Manager : MonoBehaviour {
 	public GameObject BugPrefab;
 	public GameObject AttractorPrefab;
 
-	[Header("Variables")]
-	public int maxBugs = 100;
-	public int startBugs = 50;
-	public float speedMin = 1f;				// Minimum bug speed
-	public float speedMax = 50f;				// Maximum bug speed
-	public float turnMin = 0f;				// Shortest time before turn
-	public float turnMax = 5f;				// Longest time before turn
-	public float distanceMax = 10;			// Further away objects start approaching the Attractor
-	public float attractorVolume = 10;		// Variation for Attractor direction
-	public float attractorThreshold = 100;	// Percentage of chance for object too far away to approach the Attractor
-	public float colliderScale = 1;			// Used to scale the bug collider for paranoia level
-	public float averageLifespan = 10;		// Average lifespan in seconds
-
 	private Slider sliderBugsCount;
 
 	// Bugs pool
@@ -48,7 +35,7 @@ public class Manager : MonoBehaviour {
 
 		// Create the Bugs object pool
 		bugsPool = new List<GameObject> ();
-		for (int i = 0; i < maxBugs; i++)
+		for (int i = 0; i < Setup.maxBugs; i++)
 		{
 			// TODO make OBJ & BC reference the same thing, it's confusing here
 			GameObject obj = Instantiate (BugPrefab, Vector3.zero, Quaternion.identity);
@@ -63,21 +50,43 @@ public class Manager : MonoBehaviour {
 
 		// Setup the population slider min, max and default
 		sliderBugsCount = GameObject.Find ("SliderBugsCount").GetComponent<Slider> ();
-		sliderBugsCount.maxValue = (float)maxBugs;
+		sliderBugsCount.maxValue = (float)Setup.maxBugs;
 		sliderBugsCount.minValue = 0f;
-		sliderBugsCount.value = startBugs;
+		sliderBugsCount.value = Setup.startBugs;
 		requestedBugs = (int)sliderBugsCount.value;
 		Debug.Log ("-- END MAIN AWAKE --");
 		Debug.Log ("Requested bugs = " + requestedBugs);
 	}
 
+	void OnBugDeath(Bug obj)
+	{
+		Debug.Log (obj.name + " DEATH SUBSCRIBED");
+		Debug.Log (obj.name + " has died. Death count is now " + Bug.CountDeaths);
+
+		// End if all bugs are dead
+		if (Bug.CountActive == 0) 
+		{
+			Debug.Log ("All bugs have died. Terminating.");
+			Debug.Break ();
+		}
+	}
+
+	void OnBugEncounter(Bug bug)
+	{
+		Debug.Log (bug.transform.name + " collided with " + bug.lastCollider);
+	}
+
 	void Start() 
 	{
 		// Spawn initial bugs from the pool with random Genders
-		for (int i = 0; i < startBugs; i++)
+		for (int i = 0; i < Setup.startBugs; i++)
 		{
 			GetNewBugFromPool((BugGender)Random.Range(0, 2));	
 		}
+
+		Bug.BugDeath += OnBugDeath;
+		Bug.BugEncounter += OnBugEncounter;
+
 		Debug.Log ("-- END MAIN START --");
 	}
 
@@ -107,7 +116,7 @@ public class Manager : MonoBehaviour {
 		{
 			if (!bugsPool[i].activeSelf)
 			{
-				bugsPool [i].GetComponent<Bug>().Initialize(g);
+				bugsPool [i].GetComponent<Bug> ().Initialize (g);
 				return;
 			}
 		}
@@ -126,15 +135,15 @@ public class Manager : MonoBehaviour {
 		}
 	}
 
-	public void Death(GameObject obj) 
-	{
-		Debug.Log (obj.name + " has died. Death count is now " + Bug.CountDeaths);
-
-		// End if all bugs are dead
-		if (Bug.CountActive == 0) 
-		{
-			Debug.Log ("All bugs have died. Terminating.");
-			Debug.Break ();
-		}
-	}
+//	public void Death(GameObject obj) 
+//	{
+//		Debug.Log (obj.name + " has died. Death count is now " + Bug.CountDeaths);
+//
+//		// End if all bugs are dead
+//		if (Bug.CountActive == 0) 
+//		{
+//			Debug.Log ("All bugs have died. Terminating.");
+//			Debug.Break ();
+//		}
+//	}
 }

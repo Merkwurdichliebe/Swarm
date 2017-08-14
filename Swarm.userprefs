@@ -2,13 +2,14 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Manager.cs">
     <Files>
+      <File FileName="Assets/Scripts/Bug.cs" Line="91" Column="38" />
+      <File FileName="Assets/Scripts/Manager.cs" Line="103" Column="54" />
+      <File FileName="Assets/Scripts/Setup.cs" Line="5" Column="19" />
       <File FileName="Assets/Scripts/Utilities.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/AttractorController.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/UIController.cs" Line="24" Column="15" />
+      <File FileName="Assets/Scripts/UIController.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/CameraController.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/_TODO.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Bug.cs" Line="80" Column="3" />
-      <File FileName="Assets/Scripts/Manager.cs" Line="138" Column="4" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -14,7 +14,6 @@ public class UIController : MonoBehaviour {
 	public float deltaTime;
 
 	void Awake() {
-		settings = GameObject.Find ("Manager").GetComponent<Manager>();
 	}
 
 	void Update() {
@@ -25,22 +24,22 @@ public class UIController : MonoBehaviour {
 	}
 
 	public void SliderMinMaxInterval(float newValue) {
-		settings.turnMin = Utilities.map01((1 - newValue), 0f, 2f);
-		settings.turnMax = Utilities.map01((1 - newValue), 0f, 10f);
+		Setup.turnMin = Utilities.map01((1 - newValue), 0f, 2f);
+		Setup.turnMax = Utilities.map01((1 - newValue), 0f, 10f);
 	}
 
 	public void SliderMinMaxSpeed(float newValue) {
-		settings.speedMin = Utilities.map01(newValue, 1f, 20f);
-		settings.speedMax = Utilities.map01(newValue, 3f, 60f);
+		Setup.speedMin = Utilities.map01(newValue, 1f, 20f);
+		Setup.speedMax = Utilities.map01(newValue, 3f, 60f);
 	}
 
 	public void SliderMaxDistToAttractor(float newValue) {
-		settings.distanceMax = (1 - newValue) * (1 - newValue) * 100;
-		settings.attractorVolume = ((1 - newValue) * 20);
+		Setup.distanceMax = (1 - newValue) * (1 - newValue) * 100;
+		Setup.attractorVolume = ((1 - newValue) * 20);
 	}
 
 	public void SliderColliderScale(float newValue) {
-		settings.colliderScale = newValue;
+		Setup.colliderScale = newValue;
 	}
 
 	private void DisplayFPS() {

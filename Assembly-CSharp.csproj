@@ -51,11 +51,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\MainTest.cs" />
      <Compile Include="Assets\Scripts\_TODO.cs" />
      <Compile Include="Assets\Scripts\AttractorController.cs" />
      <Compile Include="Assets\Scripts\Bug.cs" />
      <Compile Include="Assets\Scripts\CameraController.cs" />
      <Compile Include="Assets\Scripts\Manager.cs" />
+     <Compile Include="Assets\Scripts\ObjectPool.cs" />
      <Compile Include="Assets\Scripts\Setup.cs" />
      <Compile Include="Assets\Scripts\UIController.cs" />
      <Compile Include="Assets\Scripts\Utilities.cs" />

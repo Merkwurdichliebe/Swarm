@@ -13,7 +13,9 @@ public enum Status {Born, Adult, Dying};
 
 public class Bug : MonoBehaviour {
 
-	// Declare delegate and events for notification
+	// EVENT SYSTEM
+	// Declare delegate and events for notifications
+	// These are subscribed to by the Manager class
 	public delegate void BugEventHandler(Bug sender);
 	public static event BugEventHandler BugDeath;
 	public static event BugEventHandler BugEncounter;
@@ -47,12 +49,12 @@ public class Bug : MonoBehaviour {
 
 	// Object references
 	private AttractorController attractor;
-//	private Manager manager;
 	private Setup setup;
 	private BoxCollider boxCollider;
 
 	// Gender is a Property so that setting it also changes the bug's color
 	private BugGender gender;
+
 	public BugGender Gender
 	{
 		get
@@ -79,7 +81,6 @@ public class Bug : MonoBehaviour {
 
 	void Awake() 
 	{
-//		manager = GameObject.Find ("Manager").GetComponent<Manager>();
 		boxCollider = gameObject.GetComponent<BoxCollider> ();
 		material = gameObject.GetComponent<Renderer> ().material;
 		colliderStartSize = boxCollider.size;
@@ -101,6 +102,7 @@ public class Bug : MonoBehaviour {
 		status = Status.Adult;
 		birthTime = Time.time;
 		transform.position = Utilities.randomVectorInRange (50);
+		transform.rotation = Quaternion.LookRotation (Utilities.randomVectorInRange (1));
 		count [(int)Gender]++;
 		StartCoroutine(CheckIfDead());
 		Debug.Log (string.Format ("FROM BUG : {0} has been enabled, Active count now {1}", this.name, CountActive));		
@@ -221,7 +223,6 @@ public class Bug : MonoBehaviour {
 		{
 			BugDeath (this);
 		}
-//		manager.Death (gameObject);
 		Debug.Log (string.Format ("FROM BUG : {0} has been disabled, Active count now {1}", this.name, CountActive));
 
 	}
@@ -238,9 +239,9 @@ public class Bug : MonoBehaviour {
 		lastCollider = other;
 		if (BugEncounter != null)
 		{
+			CountEncounters++;
 			BugEncounter (this);
 		}
-//		manager.Encounter (gameObject, other.gameObject);
 		if (other.gameObject.tag == "Bug" && status == Status.Adult)
 		{
 			if (other.gameObject.GetComponent<Bug>().gender != gender)

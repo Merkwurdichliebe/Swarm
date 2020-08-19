@@ -1,7 +1,4 @@
 .DS_Store
 Temp/
-Build*/
 Library/
 obj/
-*.app
-*.zip
